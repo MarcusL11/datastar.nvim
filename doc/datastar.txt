@@ -7,8 +7,10 @@ Introduction                         |datastar-introduction|
 Requirements                         |datastar-requirements|
 Installation                         |datastar-installation|
 Setup and loading                    |datastar-setup|
+Supported filetypes                  |datastar-filetypes|
+Custom attributes                    |datastar-custom-attributes|
 Supported syntax                     |datastar-syntax|
-Django holes                         |datastar-django-holes|
+Template holes                       |datastar-template-holes|
 Highlight groups                     |datastar-highlights|
 Troubleshooting                      |datastar-troubleshooting|
 Compatibility and validation         |datastar-compatibility|
@@ -17,9 +19,9 @@ Limitations                          |datastar-limitations|
 ==============================================================================
 Introduction                              *datastar-introduction*
 
-Datastar.nvim provides syntax highlighting for Datastar attributes in `html`
-and `htmldjango` buffers.  This is a deliberately bounded first syntax MVP.
-It highlights pinned built-in Datastar attribute names and selected tokens in
+Datastar.nvim provides syntax highlighting for Datastar attributes in `html`,
+`htmldjango`, `jinja`, `twig`, and `liquid` buffers.  It highlights pinned
+built-in attributes, configured custom plugin names, and selected tokens in
 eligible quoted values.  It is not a JavaScript parser, expression validator,
 or LSP.
 
@@ -49,11 +51,11 @@ installation needs no configuration.  Examples: >
   use "MarcusL11/datastar.nvim"
 <
 
-For lazy.nvim, load it only for its supported filetypes: >
+For lazy.nvim, load it for the supported filetypes: >
 
   {
     "MarcusL11/datastar.nvim",
-    ft = { "html", "htmldjango" },
+    ft = { "html", "htmldjango", "jinja", "twig", "liquid" },
   }
 <
 
@@ -69,28 +71,80 @@ Setup and loading                                *datastar-setup*
 No setup call is needed in the ordinary case.  A lazy manager may call the
 same public setup entry point explicitly: >
 
-  {
-    "MarcusL11/datastar.nvim",
-    ft = { "html", "htmldjango" },
-    config = function()
-      require("datastar").setup()
-    end,
-  }
+  require("datastar").setup({
+    custom_attributes = {
+      "my-plugin",
+      "custom-action",
+    },
+  })
 <
 
-Calling `setup()` after automatic loading is safe.  It is idempotent: the
-plugin replaces its autocmd group rather than adding duplicate handlers.
+Calling `setup()` before or after automatic loading is safe.  The plugin
+replaces its autocmd group rather than adding duplicate handlers.
 
-The syntax-MVP configuration surface is intentionally empty.  It does not
-accept extra filetypes or custom attribute registrations.  Buffers with
-filetype `html` or `htmldjango` attach automatically; changing an attached
-buffer to another filetype removes its Datastar marks and callback.
+`setup()` and `setup(nil)` preserve and reapply the current configuration.
+Passing a table replaces the complete explicit configuration from defaults.
+Consequently, `setup({})` clears all custom names.  A configuration change
+refreshes loaded supported buffers and does not add buffer callbacks.
+
+Options are validated before active state changes.  Invalid setup raises an
+actionable error and leaves the previous configuration, autocmd topology,
+attachments, and marks unchanged.  Only `custom_attributes` is accepted;
+there is no generic filetype option.
+
+==============================================================================
+Supported filetypes                          *datastar-filetypes*
+
+The fixed default matrix is: >
+
+  html
+  htmldjango
+  jinja
+  twig
+  liquid
+<
+
+Only `htmldjango` is globally registered to the HTML Tree-sitter language.
+Jinja, Twig, and Liquid retain their own language identities while the plugin
+requests an explicit secondary HTML parser for structural attribute bounds.
+The plugin never starts or stops a visible host highlighter.
+
+Stock Neovim 0.10 does not detect the `.jinja` extension.  Datastar.nvim
+supports buffers whose filetype is already `jinja`; it does not install or
+override filename-detection rules.
+
+==============================================================================
+Custom attributes                    *datastar-custom-attributes*
+
+Custom Datastar plugin names are supplied without the `data-` prefix: >
+
+  require("datastar").setup({
+    custom_attributes = { "my-plugin", "custom-action" },
+  })
+<
+
+The option must be a dense array of strings.  Each name must use lowercase
+kebab-case matching this Lua-pattern notation: >
+
+  ^[a-z][a-z0-9]*(%-[a-z0-9]+)*$
+<
+
+Leading, trailing, or consecutive hyphens, uppercase letters, underscores,
+and names beginning with `data-` are rejected.  Duplicate custom names and
+collisions with built-ins are deduplicated.  Effective matching is
+deterministic and longest-name-safe.  Input is copied, so later caller table
+mutation has no effect.
+
+Configured custom names receive the same name segmentation and bounded quoted
+value tokenization as built-ins.  They do not gain metadata, modifier
+validation, completion, or diagnostics.  Unknown unconfigured `data-*`
+attributes remain ignored.
 
 ==============================================================================
 Supported syntax                                *datastar-syntax*
 
-Only `html` and `htmldjango` participate.  Datastar.nvim recognizes these
-lowercase built-in attribute names: >
+On every supported filetype, Datastar.nvim recognizes these lowercase
+built-in attribute names: >
 
   animate                 attr                  bind
   class                   computed              custom-validity
@@ -105,17 +159,17 @@ lowercase built-in attribute names: >
   text                    view-transition
 <
 
-A recognized name starts with `data-{name}` and may continue with `:{key}`
-segments (including well-formed dotted keys) and `__{modifier}` segments with
-an optional `.argument`.  A complete recognized name can be highlighted even
-when the attribute has no value.
+A recognized built-in or configured custom name starts with `data-{name}` and
+may continue with `:{key}` segments, including well-formed dotted keys, and
+`__{modifier}` segments with an optional `.argument`.  A complete recognized
+name can be highlighted even when the attribute has no value.
 
 While a name is being edited, completed name pieces may still be highlighted,
 but a malformed or incomplete suffix does not activate value tokenization.
-Value tokenization is a separate step: it runs only for a complete recognized
-lowercase name whose value HTML parses as quoted.  Unknown or ordinary
-`data-*` attributes, ARIA attributes, comments, text, and unquoted values do
-not activate Datastar value highlighting.
+Value tokenization runs only for a complete recognized lowercase name whose
+value HTML parses as quoted.  Unknown `data-*` attributes, ARIA attributes,
+comments, text, and unquoted values do not activate Datastar value
+highlighting.
 
 Within an eligible quoted value, these token roles are supported:
 
@@ -132,18 +186,19 @@ These are highlighting boundaries, not an assertion that an expression is
 valid JavaScript or valid Datastar.
 
 ==============================================================================
-Django holes                              *datastar-django-holes*
+Template holes        *datastar-template-holes* *datastar-django-holes*
 
 A complete `{% ... %}` or `{{ ... }}` fragment inside a recognized quoted
-attribute value is a host-owned hole.  Datastar.nvim emits no mark over the
-fragment.  In an `htmldjango` buffer, built-in Vim Django/HTML syntax remains
-the visible host presentation; the plugin uses the HTML parser for structure
-without starting a visible HTML Tree-sitter highlighter.
+attribute value is a host-owned hole.  This includes whitespace-control forms.
+No Datastar mark covers the fragment in Django, Jinja, Twig, or Liquid
+buffers.  The plugin uses HTML Tree-sitter only for structure and leaves the
+visible host presentation untouched.
 
 A complete hole inside a quoted string does not terminate that surrounding
 string state.  An unclosed `{%` or `{{` fails closed: Datastar tokenization
-stops through the end of that attribute value.  Django comments and broader
-Django/template lexical behavior are not part of this contract.
+stops through the end of that attribute value.  Comments, alternate
+delimiters, and broader template lexical behavior are not part of this
+contract.
 
 ==============================================================================
 Highlight groups                          *datastar-highlights*
@@ -184,21 +239,28 @@ missing parser warns at most once per Neovim session, recommends installing
 syntax unchanged.
 
 Query, parse, and unexpected refresh failures also warn at most once for each
-failure category.  Check `:messages` for their actionable detail.  Every
-warning is non-destructive: host syntax is left in place and no Datastar marks
-are emitted for the failed refresh.
+failure category.  Check `:messages` for actionable detail.  Every warning is
+non-destructive: host syntax remains and no Datastar marks are emitted for the
+failed refresh.
 
 A value is not highlighted~
 
-Confirm the filetype is exactly `html` or `htmldjango`; the complete attribute
-name and suffixes are lowercase; and the HTML value is quoted.  Other
+Confirm the filetype is `html`, `htmldjango`, `jinja`, `twig`, or `liquid`;
+the complete attribute name and suffixes are lowercase; and the HTML value is
+quoted.  Custom names must also be present in `custom_attributes`.  Other
 `data-*` values are intentionally ignored.
 
-Django looks different from HTML~
+A `.jinja` file is not activated on Neovim 0.10~
 
-That is expected in an `htmldjango` buffer.  Vim's Django/HTML syntax remains
-visible by design; Datastar.nvim does not start visible HTML Tree-sitter
-highlighting there.
+Stock Neovim 0.10 does not detect that extension.  Configure your environment
+to set `filetype=jinja`.  Datastar.nvim deliberately does not own filetype
+detection.
+
+Template colors look different from HTML~
+
+That is expected.  Host syntax and highlighters remain visible by design.
+Datastar.nvim does not replace Jinja, Twig, or Liquid language identities and
+does not start visible HTML Tree-sitter highlighting for those buffers.
 
 Help is not found~
 
@@ -225,6 +287,7 @@ The local validation contract is: >
   ./tests/run.sh tests/cases/help.lua
   ./tests/run-version-matrix.sh
   git diff --check
+  test -z "$(git ls-files .deps doc/tags)"
   git status --short
 <
 
@@ -236,12 +299,14 @@ ignored `.deps/`; it does not commit a platform parser binary.
 ==============================================================================
 Limitations                                  *datastar-limitations*
 
-The following are intentional non-goals of this syntax MVP:
+The following are intentional non-goals:
 
-  - Filetypes other than `html` and `htmldjango`.
-  - Custom attributes, uppercase attribute spellings, and unquoted values.
-  - Django comments or complete template-language lexical support beyond the
-    two hole forms described in |datastar-django-holes|.
+  - Filetypes other than `html`, `htmldjango`, `jinja`, `twig`, and `liquid`.
+  - Generic user-configurable filetypes or filename-detection rules.
+  - Custom metadata, completion, modifier validation, or diagnostics.
+  - Uppercase attribute spellings and unquoted values.
+  - Comments, alternate hole forms, or complete template-language lexical
+    support beyond the two forms in |datastar-template-holes|.
   - Arrow-function semantics, spread semantics, and template-literal
     interpolation.
   - JavaScript parser injection or a Datastar Vim-syntax backend.

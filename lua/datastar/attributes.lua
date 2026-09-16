@@ -2,10 +2,34 @@ local builtin_names = require("datastar.generated.attributes")
 
 local M = {}
 
-local names = vim.deepcopy(builtin_names)
-table.sort(names, function(left, right)
-  return #left > #right
-end)
+local builtin = {}
+for _, name in ipairs(builtin_names) do
+  builtin[name] = true
+end
+
+local names = {}
+
+local function sort_names(left, right)
+  if #left ~= #right then
+    return #left > #right
+  end
+  return left < right
+end
+
+function M.configure(custom_names)
+  local combined = vim.deepcopy(builtin_names)
+  local seen = vim.deepcopy(builtin)
+  for _, name in ipairs(custom_names or {}) do
+    if not seen[name] then
+      seen[name] = true
+      combined[#combined + 1] = name
+    end
+  end
+  table.sort(combined, sort_names)
+  names = combined
+end
+
+M.configure({})
 
 local function add(parts, role, start_col, end_col)
   parts[#parts + 1] = {
@@ -107,6 +131,10 @@ end
 
 function M.names()
   return vim.deepcopy(builtin_names)
+end
+
+function M.effective_names()
+  return vim.deepcopy(names)
 end
 
 return M

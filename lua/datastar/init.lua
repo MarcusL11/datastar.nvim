@@ -1,3 +1,5 @@
+local attributes = require("datastar.attributes")
+local config = require("datastar.config")
 local highlights = require("datastar.highlights")
 local renderer = require("datastar.renderer")
 
@@ -8,6 +10,13 @@ local attachment_tokens = {}
 local notices = {}
 local setup_complete = false
 local augroup_name = "datastar.nvim"
+local supported_filetypes = {
+  html = true,
+  htmldjango = true,
+  jinja = true,
+  twig = true,
+  liquid = true,
+}
 
 local notice_messages = {
   missing_parser = "datastar.nvim: the HTML Tree-sitter parser is required for Datastar highlighting; install it with :TSInstall html (or your parser manager) and reload the buffer; host syntax was left unchanged",
@@ -39,8 +48,7 @@ local function eligible(buf)
   if not valid_loaded_buffer(buf) then
     return false
   end
-  local filetype = vim.bo[buf].filetype
-  return filetype == "html" or filetype == "htmldjango"
+  return supported_filetypes[vim.bo[buf].filetype] == true
 end
 
 local function warn_once(reason)
@@ -151,8 +159,12 @@ function M.detach(buf)
   return was_attached
 end
 
-function M.setup()
+function M.setup(opts)
+  local next_config = opts == nil and config.current() or config.normalize(opts)
+
   vim.treesitter.language.register("html", "htmldjango")
+  attributes.configure(next_config.custom_attributes)
+  config.apply(next_config)
   renderer.set_warning_handler(warn_once)
   highlights.define()
 
@@ -161,10 +173,12 @@ function M.setup()
     group = group,
     pattern = "*",
     callback = function(args)
-      if eligible(args.buf) then
-        M.attach(args.buf)
-      else
+      if not eligible(args.buf) then
         M.detach(args.buf)
+      elseif attached[args.buf] then
+        M.refresh(args.buf)
+      else
+        M.attach(args.buf)
       end
     end,
   })
@@ -182,10 +196,14 @@ function M.setup()
 
   setup_complete = true
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if eligible(buf) then
-      M.attach(buf)
+    if not eligible(buf) then
+      if attached[buf] then
+        M.detach(buf)
+      end
     elseif attached[buf] then
-      M.detach(buf)
+      M.refresh(buf)
+    else
+      M.attach(buf)
     end
   end
 end
@@ -200,6 +218,7 @@ function M._state()
     setup_complete = setup_complete,
     warned_for_parser = notices.missing_parser == true or notices.query_failed == true,
     notices = vim.deepcopy(notices),
+    config = config.current(),
   }
 end
 

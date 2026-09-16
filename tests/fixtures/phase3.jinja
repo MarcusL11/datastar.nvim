@@ -1,0 +1,6 @@
+<section
+  data-on:click="@get('/items?name={{- product.title -}}') && $ready"
+  data-my-plugin:status__debounce.500="{ active: $ready }"
+>
+  {% if product %}{{ product.title }}{% endif %}
+</section>
