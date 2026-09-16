@@ -1,6 +1,8 @@
 # Phase 3 filetypes and custom attributes — completion evidence
 
-> **Status:** implementation and local automated validation completed on 2026-09-16. GitHub Actions evidence is recorded only after a pushed revision completes the workflow. Tagging and publication are not claimed.
+> **Status:** implementation, local automated validation, manual user verification, and GitHub Actions validation completed on 2026-09-16. Phase 3 is committed and pushed; tagging and publication remain unauthorized.
+
+The Phase 3 implementation is commit `9bd1e37c47e68b0533507bddcf7d8bd6a4c0b4d2`.
 
 Phase 3 extends the syntax MVP to the evidence-backed `html`, `htmldjango`, `jinja`, `twig`, and `liquid` matrix and adds atomic configuration for custom Datastar plugin names. It does not broaden the parser/tokenizer architecture or start LSP and release work.
 
@@ -57,6 +59,17 @@ Local environment: Darwin 25.6.0 arm64, Neovim 0.12.5.
 ```
 
 Wall-clock viability values are evidence only; deterministic semantic scaling remains the gate. The matrix builds the pinned parser inside isolated Linux repository copies, so no Linux binary enters the host `.deps/`.
+
+## GitHub Actions evidence
+
+The pushed Phase 3 implementation passed the complete workflow:
+
+- Run: <https://github.com/MarcusL11/datastar.nvim/actions/runs/35087160907>
+- Required Neovim 0.10.4, 0.11.7, and 0.12.5 jobs: PASS.
+- Build-only `macos-14` parser smoke: PASS.
+- Non-blocking Neovim nightly job: PASS.
+
+The `actions/checkout@v4` Node.js 20 deprecation warning remains unrelated release-engineering work and did not affect any required result.
 
 ## Manual verification
 
