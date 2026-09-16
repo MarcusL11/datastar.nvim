@@ -27,8 +27,18 @@ jobs:
         run: ./tests/build_parsers.sh
       - name: Prove harness failure propagation
         run: ./tests/run.sh --self-test-failure
-      - name: Run Phase 1 suite
+      - name: Run syntax MVP suite
         run: ./tests/run.sh
+
+  macos-parser-build-smoke:
+    name: macOS parser build smoke (Darwin compiler path)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pinned HTML parser
+        run: ./tests/build_parsers.sh
+      - name: Verify parser artifact
+        run: test -f .deps/parser/html.so
 
   nightly:
     name: Neovim nightly (non-blocking)
@@ -44,5 +54,5 @@ jobs:
           echo "$RUNNER_TEMP/nvim/bin" >> "$GITHUB_PATH"
       - name: Build pinned HTML parser
         run: ./tests/build_parsers.sh
-      - name: Run Phase 1 suite
+      - name: Run syntax MVP suite
         run: ./tests/run.sh

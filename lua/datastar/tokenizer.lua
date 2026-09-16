@@ -156,6 +156,20 @@ local function signal_end(source, position)
   return cursor - 1
 end
 
+local function invalid_signal_end(source, position)
+  if source:sub(position, position) ~= "$" then
+    return nil
+  end
+  local cursor = position + 1
+  if source:sub(cursor, cursor) == "$" then
+    cursor = cursor + 1
+  end
+  while source:sub(cursor, cursor):match("[A-Za-z0-9_]") do
+    cursor = cursor + 1
+  end
+  return cursor - 1
+end
+
 local function action_end(source, position)
   if source:sub(position, position) ~= "@" then
     return nil
@@ -222,6 +236,8 @@ function M.tokenize(source)
       if finish then
         add(tokens, "signal", position - 1, finish)
         position = finish + 1
+      elseif character == "$" then
+        position = invalid_signal_end(source, position) + 1
       else
         finish = action_end(source, position)
         if finish then

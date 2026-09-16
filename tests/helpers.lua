@@ -132,4 +132,24 @@ function M.runtime_parser_paths()
   return paths
 end
 
+function M.with_patch(target, key, replacement, callback)
+  local original = target[key]
+  target[key] = replacement
+  local ok, result = xpcall(callback, debug.traceback)
+  target[key] = original
+  if not ok then
+    error(result, 0)
+  end
+  return result
+end
+
+function M.autocmd_topology(group)
+  local topology = {}
+  for _, autocmd in ipairs(vim.api.nvim_get_autocmds({ group = group })) do
+    local key = autocmd.event .. ":" .. autocmd.pattern
+    topology[key] = (topology[key] or 0) + 1
+  end
+  return topology
+end
+
 return M

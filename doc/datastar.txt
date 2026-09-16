@@ -1,0 +1,256 @@
+*datastar.txt*	Datastar syntax highlighting for Neovim
+
+==============================================================================
+Contents                                                *datastar.nvim*
+
+Introduction                         |datastar-introduction|
+Requirements                         |datastar-requirements|
+Installation                         |datastar-installation|
+Setup and loading                    |datastar-setup|
+Supported syntax                     |datastar-syntax|
+Django holes                         |datastar-django-holes|
+Highlight groups                     |datastar-highlights|
+Troubleshooting                      |datastar-troubleshooting|
+Compatibility and validation         |datastar-compatibility|
+Limitations                          |datastar-limitations|
+
+==============================================================================
+Introduction                              *datastar-introduction*
+
+Datastar.nvim provides syntax highlighting for Datastar attributes in `html`
+and `htmldjango` buffers.  This is a deliberately bounded first syntax MVP.
+It highlights pinned built-in Datastar attribute names and selected tokens in
+eligible quoted values.  It is not a JavaScript parser, expression validator,
+or LSP.
+
+==============================================================================
+Requirements                              *datastar-requirements*
+
+Neovim 0.10 or later is required.
+
+An HTML Tree-sitter parser must be installed where Neovim can discover it.
+Datastar.nvim does not include a parser binary and has no Vim-syntax fallback.
+With nvim-treesitter, install `html` through its usual flow, for example: >
+
+  :TSInstall html
+<
+
+==============================================================================
+Installation                              *datastar-installation*
+
+Install `MarcusL11/datastar.nvim` with your usual plugin manager.  It runs its
+setup automatically when its plugin file is loaded, so a normal start-loaded
+installation needs no configuration.  Examples: >
+
+  " vim-plug
+  Plug 'MarcusL11/datastar.nvim'
+
+  -- packer.nvim
+  use "MarcusL11/datastar.nvim"
+<
+
+For lazy.nvim, load it only for its supported filetypes: >
+
+  {
+    "MarcusL11/datastar.nvim",
+    ft = { "html", "htmldjango" },
+  }
+<
+
+This documentation contains help tags but does not ship a generated `doc/tags`
+file.  If your plugin manager does not create tags, run: >
+
+  :helptags {path-to-datastar.nvim}/doc
+<
+
+==============================================================================
+Setup and loading                                *datastar-setup*
+
+No setup call is needed in the ordinary case.  A lazy manager may call the
+same public setup entry point explicitly: >
+
+  {
+    "MarcusL11/datastar.nvim",
+    ft = { "html", "htmldjango" },
+    config = function()
+      require("datastar").setup()
+    end,
+  }
+<
+
+Calling `setup()` after automatic loading is safe.  It is idempotent: the
+plugin replaces its autocmd group rather than adding duplicate handlers.
+
+The syntax-MVP configuration surface is intentionally empty.  It does not
+accept extra filetypes or custom attribute registrations.  Buffers with
+filetype `html` or `htmldjango` attach automatically; changing an attached
+buffer to another filetype removes its Datastar marks and callback.
+
+==============================================================================
+Supported syntax                                *datastar-syntax*
+
+Only `html` and `htmldjango` participate.  Datastar.nvim recognizes these
+lowercase built-in attribute names: >
+
+  animate                 attr                  bind
+  class                   computed              custom-validity
+  effect                  ignore                ignore-morph
+  indicator               init                  json-signals
+  match-media             nonce                 on
+  on-intersect            on-interval           on-raf
+  on-resize               on-signal-patch       on-signal-patch-filter
+  persist                 preserve-attr         query-string
+  ref                     replace-url           scroll-into-view
+  show                    signals               style
+  text                    view-transition
+<
+
+A recognized name starts with `data-{name}` and may continue with `:{key}`
+segments (including well-formed dotted keys) and `__{modifier}` segments with
+an optional `.argument`.  A complete recognized name can be highlighted even
+when the attribute has no value.
+
+While a name is being edited, completed name pieces may still be highlighted,
+but a malformed or incomplete suffix does not activate value tokenization.
+Value tokenization is a separate step: it runs only for a complete recognized
+lowercase name whose value HTML parses as quoted.  Unknown or ordinary
+`data-*` attributes, ARIA attributes, comments, text, and unquoted values do
+not activate Datastar value highlighting.
+
+Within an eligible quoted value, these token roles are supported:
+
+  - `$name` and `$$name` signals.
+  - Called `@action` forms, function calls, and method calls.
+  - Single- and double-quoted strings plus backslash escapes.
+  - Decimal numbers and the literals `true`, `false`, and `null`.
+  - Operators: `=== !== && || ?? == != >= <= ++ -- += -= *= /= %= + - * /`
+    `% > < ! = ? :`.
+  - Object/array punctuation `{ } [ ] , ;`, call parentheses, access dots,
+    and object keys in `{ key: value }` positions.
+
+These are highlighting boundaries, not an assertion that an expression is
+valid JavaScript or valid Datastar.
+
+==============================================================================
+Django holes                              *datastar-django-holes*
+
+A complete `{% ... %}` or `{{ ... }}` fragment inside a recognized quoted
+attribute value is a host-owned hole.  Datastar.nvim emits no mark over the
+fragment.  In an `htmldjango` buffer, built-in Vim Django/HTML syntax remains
+the visible host presentation; the plugin uses the HTML parser for structure
+without starting a visible HTML Tree-sitter highlighter.
+
+A complete hole inside a quoted string does not terminate that surrounding
+string state.  An unclosed `{%` or `{{` fails closed: Datastar tokenization
+stops through the end of that attribute value.  Django comments and broader
+Django/template lexical behavior are not part of this contract.
+
+==============================================================================
+Highlight groups                          *datastar-highlights*
+
+Datastar.nvim uses persistent extmarks with priority 110.  It defines default
+links only and never defines colors.  Defining those defaults does not replace
+an override that still exists.  A colorscheme may clear an override, so apply
+your overrides after the colorscheme.  For example: >
+
+  highlight DatastarSignal guifg=#7aa2f7 gui=bold
+  highlight link DatastarAction Special
+<
+
+The groups are:
+
+  DatastarAttributePrefix             DatastarPlugin
+  DatastarKeySeparator                DatastarKey
+  DatastarModifierSeparator           DatastarModifier
+  DatastarModifierArgumentSeparator   DatastarModifierArgument
+  DatastarSignal                      DatastarAction
+  DatastarFunctionCall                DatastarMethodCall
+  DatastarString                      DatastarEscape
+  DatastarNumber                      DatastarBoolean
+  DatastarNull                        DatastarOperator
+  DatastarPunctuation                 DatastarObjectKey
+  DatastarAccessor                    DatastarCallPunctuation
+
+==============================================================================
+Troubleshooting                                    *datastar-troubleshooting*
+
+No Datastar highlighting~
+
+Check that `:echo has('nvim-0.10')` returns 1 and that Neovim can discover and
+use an HTML Tree-sitter parser.  A `parser/html.*` file on the runtime path is
+the usual installation shape, but it is not the only discovery mechanism.  A
+missing parser warns at most once per Neovim session, recommends installing
+`html` with `:TSInstall html` or another parser manager, and leaves host
+syntax unchanged.
+
+Query, parse, and unexpected refresh failures also warn at most once for each
+failure category.  Check `:messages` for their actionable detail.  Every
+warning is non-destructive: host syntax is left in place and no Datastar marks
+are emitted for the failed refresh.
+
+A value is not highlighted~
+
+Confirm the filetype is exactly `html` or `htmldjango`; the complete attribute
+name and suffixes are lowercase; and the HTML value is quoted.  Other
+`data-*` values are intentionally ignored.
+
+Django looks different from HTML~
+
+That is expected in an `htmldjango` buffer.  Vim's Django/HTML syntax remains
+visible by design; Datastar.nvim does not start visible HTML Tree-sitter
+highlighting there.
+
+Help is not found~
+
+Generate help tags for the installed plugin with: >
+
+  :helptags {path-to-datastar.nvim}/doc
+<
+See |datastar-installation|.
+
+==============================================================================
+Compatibility and validation          *datastar-compatibility*
+
+The supported baseline is Neovim 0.10+.  The repository CI configuration
+exercises the pinned HTML parser and suite on Ubuntu with Neovim v0.10.4,
+v0.11.7, and v0.12.5.  Its nightly Neovim lane is non-blocking.  A separate
+macOS job smoke-tests only the Darwin parser-build path, not the plugin suite.
+No Windows compatibility claim is made.
+
+The local validation contract is: >
+
+  ./tests/build_parsers.sh
+  ./tests/run.sh --self-test-failure
+  ./tests/run.sh
+  ./tests/run.sh tests/cases/help.lua
+  ./tests/run-version-matrix.sh
+  git diff --check
+  git status --short
+<
+
+The deterministic help case generates tags in a temporary copy and verifies
+that `:help datastar.nvim` resolves; it does not add `doc/tags` to the
+repository.  The matrix command requires Docker.  The parser build writes to
+ignored `.deps/`; it does not commit a platform parser binary.
+
+==============================================================================
+Limitations                                  *datastar-limitations*
+
+The following are intentional non-goals of this syntax MVP:
+
+  - Filetypes other than `html` and `htmldjango`.
+  - Custom attributes, uppercase attribute spellings, and unquoted values.
+  - Django comments or complete template-language lexical support beyond the
+    two hole forms described in |datastar-django-holes|.
+  - Arrow-function semantics, spread semantics, and template-literal
+    interpolation.
+  - JavaScript parser injection or a Datastar Vim-syntax backend.
+  - Incremental/decorative rendering machinery.
+  - LSP packaging, completion, diagnostics, hover, navigation, rename, and
+    signature help.
+  - Bundled parser binaries or automatic upstream attribute synchronization.
+
+For pinned upstream source provenance and attribution, see UPSTREAM.md in the
+plugin repository.
+
+vim:tw=78:ts=8:noet:ft=help

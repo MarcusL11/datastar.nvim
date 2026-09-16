@@ -1,6 +1,6 @@
 # Upstream inputs
 
-Phase 1 uses these pinned upstream inputs:
+datastar.nvim uses these pinned upstream inputs:
 
 - Datastar attribute metadata: [`starfederation/datastar-vscode-extension`](https://github.com/starfederation/datastar-vscode-extension), commit `38b266ae5af74d04fa3c80887fee165670cbd35e`, `src/language-data.json`.
 - Syntax-role reference: the same repository and commit, `src/datastar.injection.tmLanguage.json`.

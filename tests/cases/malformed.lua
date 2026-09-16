@@ -49,6 +49,17 @@ return function()
     h.assert_true(mark.group ~= "DatastarModifier" and mark.group ~= "DatastarModifierSeparator", "incomplete modifier invented a token")
   end
 
+  local suffix_marks, suffix_buf = fresh_marks(datastar, '<div data-on:click__="$signal">')
+  local suffix_tokens = vim.tbl_map(function(mark)
+    return mark.group .. "|" .. h.mark_text(suffix_buf, mark)
+  end, suffix_marks)
+  h.assert_equal({
+    "DatastarAttributePrefix|data-",
+    "DatastarPlugin|on",
+    "DatastarKeySeparator|:",
+    "DatastarKey|click",
+  }, suffix_tokens, "an incomplete name suffix renders completed name portions but never tokenizes its value")
+
   local unclosed = [[<div data-on:click="'before {% url 'items' after $signal">]]
   local marks, unclosed_buf = fresh_marks(datastar, unclosed)
   local opener = assert(unclosed:find("{%", 1, true)) - 1

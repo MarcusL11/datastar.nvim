@@ -118,7 +118,7 @@ function M.discover(buf)
         local segmentation = attributes.segment(name)
         if segmentation then
           local start_row, start_col, end_row, end_col = name_node:range()
-          local value = value_from_attribute(buf, node)
+          local value = segmentation.complete and value_from_attribute(buf, node) or nil
           candidates[#candidates + 1] = {
             name = name,
             name_start_row = start_row,

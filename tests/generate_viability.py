@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a deterministic approximately 100 KiB Phase 1 viability fixture."""
+"""Generate a deterministic approximately 100 KiB syntax-MVP viability fixture."""
 
 from pathlib import Path
 

@@ -10,7 +10,7 @@ if [ ! -f "$ROOT/.deps/parser/html.so" ]; then
 fi
 python3 "$ROOT/tests/generate_viability.py" >/dev/null
 
-DEFAULT_CASES='tests/cases/architecture.lua tests/cases/htmldjango.lua tests/cases/malformed.lua tests/cases/highlights.lua tests/cases/lifecycle.lua tests/cases/parser_absence.lua tests/cases/viability.lua'
+DEFAULT_CASES='tests/cases/architecture.lua tests/cases/htmldjango.lua tests/cases/malformed.lua tests/cases/syntax_contract.lua tests/cases/highlights.lua tests/cases/public_entry.lua tests/cases/zero_config.lua tests/cases/lifecycle.lua tests/cases/parser_absence.lua tests/cases/failure_ux.lua tests/cases/help.lua tests/cases/viability.lua'
 
 if [ "${1:-}" = "--self-test-failure" ]; then
   CASES='tests/cases/self_failure.lua'
@@ -40,7 +40,7 @@ run_case() {
   DATASTAR_ROOT="$ROOT" \
   DATASTAR_TEST_CASE="$case_path" \
   DATASTAR_TEST_NO_PARSER="$no_parser" \
-    "$NVIM_BIN" --clean --headless -u "$ROOT/tests/minimal_init.lua" -i NONE \
+    "$NVIM_BIN" --clean --headless --cmd "set noloadplugins" -u "$ROOT/tests/minimal_init.lua" -i NONE \
       -c "lua dofile([[$ROOT/tests/run.lua]])"
   status=$?
   set -e
