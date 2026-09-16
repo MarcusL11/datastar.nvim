@@ -1,10 +1,10 @@
 # Phase 2 production syntax MVP — completion evidence
 
-> **Status:** implementation, automated validation and user visual review completed on 2026-09-16. The user authorized commit and push; tag and publication remain unauthorized.
+> **Status:** implementation, automated validation and user visual review completed on 2026-09-16. Phase 2 was committed and pushed; tag and publication remain unauthorized.
 
 Phase 2 turns the Phase 1 architecture proof into a bounded user-facing syntax MVP without expanding its language or filetype scope. The public boundary remains Neovim 0.10+, an externally installed HTML Tree-sitter parser, and the `html`/`htmldjango` filetypes.
 
-The candidate is the uncommitted worktree based on `671d6e45682e085e660e686066b4ad5a09cb79aa`.
+The Phase 2 implementation is commit `430676cd32a2005fe88fa39221976b7290066dc6`.
 
 ## Acceptance evidence
 
@@ -23,7 +23,7 @@ The candidate is the uncommitted worktree based on `671d6e45682e085e660e686066b4
 | Harness integrity | `./tests/run.sh --self-test-failure` must observe the intentional failure and return success only because the harness rejected it. | PASS. |
 | Bounded viability | The 102,564-byte deterministic fixture examined 814 recognized attributes, 26,048 value bytes, 5,698 tokens and 8,954 extmarks. Half/full semantic counts remained exactly proportional. | PASS; timings recorded below, not asserted. |
 | Released lines | `./tests/run-version-matrix.sh` builds the pinned ABI-14 HTML parser and runs the complete suite in isolated Docker copies. | PASS on 0.10.4, 0.11.7 and 0.12.5. |
-| Darwin parser build | `./tests/build_parsers.sh` exercised the Darwin arm64 compile/link path locally. The workflow adds a build-only `macos-14` smoke. | Local PASS. The new GitHub job cannot run until the change is pushed; it is not a macOS plugin-suite claim. |
+| Darwin parser build | `./tests/build_parsers.sh` exercised the Darwin arm64 compile/link path locally. CI runs the same build-only path on `macos-14`. | PASS locally and in GitHub Actions; this is not a macOS plugin-suite claim. |
 | Provenance and tree hygiene | `UPSTREAM.md` retains exact attribution and pins. No parser binary or generated `doc/tags` is tracked. | PASS. |
 
 ## Commands and recorded results
@@ -75,9 +75,16 @@ The released-line matrix used the checksum-pinned Neovim artifacts in `tests/neo
 - A conventional help file is shipped without generated tags; plugin managers or `:helptags` generate them.
 - CI retains required pinned Linux released-line jobs and non-blocking nightly, and adds a build-only macOS parser smoke. Windows is not claimed.
 
-## Pending external evidence
+## GitHub Actions evidence
 
-There were no Phase 2 GitHub Actions URLs when this evidence was prepared. After the authorized push, the released-line jobs, build-only macOS smoke and non-blocking nightly result can be appended here. Their absence does not replace or invalidate the completed local Docker released-line matrix; the macOS CI configuration remains separate build-only evidence.
+The pushed Phase 2 implementation passed the complete workflow:
+
+- Run: <https://github.com/MarcusL11/datastar.nvim/actions/runs/35076418560>
+- Required Neovim 0.10.4, 0.11.7 and 0.12.5 jobs: PASS.
+- Build-only `macos-14` parser smoke: PASS.
+- Non-blocking Neovim nightly job: PASS.
+
+The macOS result remains parser-build evidence only; it does not claim a macOS plugin-suite lane.
 
 ## Explicitly deferred to Phase 3+
 
