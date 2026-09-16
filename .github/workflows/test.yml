@@ -1,0 +1,48 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  released-lines:
+    name: Neovim ${{ matrix.neovim }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        neovim: [v0.10.4, v0.11.7, v0.12.5]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Neovim artifact
+        run: |
+          ./tests/install_neovim.sh "${{ matrix.neovim }}" "$RUNNER_TEMP/nvim"
+          echo "$RUNNER_TEMP/nvim/bin" >> "$GITHUB_PATH"
+      - name: Build pinned HTML parser
+        run: ./tests/build_parsers.sh
+      - name: Prove harness failure propagation
+        run: ./tests/run.sh --self-test-failure
+      - name: Run Phase 1 suite
+        run: ./tests/run.sh
+
+  nightly:
+    name: Neovim nightly (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install nightly
+        run: |
+          curl -fsSL https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz -o "$RUNNER_TEMP/nvim.tar.gz"
+          mkdir -p "$RUNNER_TEMP/nvim"
+          tar -xzf "$RUNNER_TEMP/nvim.tar.gz" -C "$RUNNER_TEMP/nvim" --strip-components=1
+          echo "$RUNNER_TEMP/nvim/bin" >> "$GITHUB_PATH"
+      - name: Build pinned HTML parser
+        run: ./tests/build_parsers.sh
+      - name: Run Phase 1 suite
+        run: ./tests/run.sh

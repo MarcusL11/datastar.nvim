@@ -1,0 +1,17 @@
+{% load static %}
+<section
+  data-signals="{_ready: false, form: {query: ''}}"
+  data-init="$_ready = true"
+  data-class="{'panel--ready': $_ready}"
+  data-on-intersect__once__half="$_ready = true"
+>
+  <input data-bind:form.query />
+  <button
+    data-indicator:_loading
+    data-attr:aria-busy="$_loading ? 'true' : null"
+    data-on:click="evt.preventDefault(); !$_loading && @get('{% url 'items' %}?page={{ page }}')"
+  >
+    <span data-show="!$_loading">Load</span>
+    <span data-show="$_loading">Loading…</span>
+  </button>
+</section>
