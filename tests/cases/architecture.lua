@@ -176,10 +176,11 @@ return function()
   local expected_parser = vim.env.DATASTAR_ROOT .. "/.deps/parser/html.so"
   h.assert_equal({ expected_parser }, h.runtime_parser_paths(), "test must use only its pinned HTML parser")
 
+  local django_language = vim.treesitter.language.get_lang("htmldjango")
   local datastar = require("datastar")
   datastar.setup()
   datastar.setup()
-  h.assert_equal("html", vim.treesitter.language.get_lang("htmldjango"), "htmldjango registration")
+  h.assert_equal(django_language, vim.treesitter.language.get_lang("htmldjango"), "htmldjango language identity")
 
   local buf = h.new_buffer(h.read_fixture("representative.html"), "html")
   local started, start_error = pcall(vim.treesitter.start, buf, "html")

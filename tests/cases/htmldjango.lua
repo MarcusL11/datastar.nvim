@@ -15,8 +15,8 @@ return function()
   local django = h.new_buffer(fixture, "htmldjango", { syntax = "htmldjango" })
   vim.cmd("syntax sync fromstart")
 
-  local parser = vim.treesitter.get_parser(django)
-  h.assert_equal("html", parser:lang(), "registered Django structural parser language")
+  local parser = vim.treesitter.get_parser(django, "html")
+  h.assert_equal("html", parser:lang(), "explicit Django structural parser language")
   h.assert_equal("document", parser:parse(true)[1]:root():type(), "Django buffer explicit HTML parse")
 
   local captures_ok, captures = pcall(vim.treesitter.get_captures_at_pos, django, 11, 23)

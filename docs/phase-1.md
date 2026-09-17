@@ -16,7 +16,7 @@ For `htmldjango`, HTML Tree-sitter is a structural service only. Built-in Vim Dj
 |---|---|
 | Isolated real-Neovim harness | `tests/run.sh` creates fresh XDG directories and one clean headless process per case. `./tests/run.sh --self-test-failure` proves non-zero failure propagation. |
 | Pinned parser input | `tests/parsers.lock` pins `tree-sitter-html` `5a5ca8551a179998360b4a4ca2c0f366a35acc03`, generated ABI 14. `tests/build_parsers.sh` builds `.deps/parser/html.so`; no binary is tracked. |
-| HTML and registered Django structure | `tests/cases/architecture.lua` and `tests/cases/htmldjango.lua` explicitly parse both filetypes and assert a `document` root. Registration is repeated safely. |
+| HTML and Django structure | `tests/cases/architecture.lua` and `tests/cases/htmldjango.lua` explicitly parse both filetypes as HTML and assert a `document` root without replacing Django's Tree-sitter language identity. |
 | Recognized attribute boundaries | The architecture case compares all 78 representative-fixture extmarks by exact byte range/group/text and verifies all 32 pinned built-in attributes. Ordinary/unknown `data-*`, ARIA, comments, text and unrelated values are negative controls. |
 | Attribute segmentation | Exact fixture and synthetic assertions cover `data-`, plugin names, `:`, dotted keys, `__`, modifier names, `.`, and modifier arguments. |
 | Bounded expression roles | Exact fixture output plus synthetic controls cover `$`/`$$` signals, `@action`, function/method calls, strings/escapes, decimal numbers, booleans/null, operators, arrays/objects, separators and object keys. Arrow, spread and template interpolation semantics remain deferred. |

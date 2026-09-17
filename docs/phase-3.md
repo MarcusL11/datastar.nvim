@@ -11,7 +11,7 @@ Phase 3 extends the syntax MVP to the evidence-backed `html`, `htmldjango`, `jin
 | Criterion | Evidence | Result |
 |---|---|---|
 | Fixed filetype matrix | `filetypes.lua` proves exact built-in name/value output for all five filetypes. | PASS locally and on Neovim 0.10.4, 0.11.7, and 0.12.5. |
-| Parser ownership | `filetypes.lua` proves only `htmldjango` is globally registered to HTML, Jinja/Twig/Liquid identities remain unchanged, and setup starts/stops no host highlighter. | PASS on every required lane. |
+| Parser ownership | `filetypes.lua` proves Django/Jinja/Twig/Liquid identities remain unchanged, each template filetype uses an explicit secondary HTML parser, and setup starts/stops no host highlighter. | PASS on every required lane. |
 | Template holes | `filetypes.lua` covers complete output/block holes, whitespace control, string-state resumption, no overlap, and fail-closed unclosed openers in every supported filetype. | PASS on every required lane. |
 | Filetype lifecycle | `filetypes.lua` proves supported-to-supported refreshes retain one callback; `lifecycle.lua` preserves unsupported detach and foreign-namespace behavior. | PASS on every required lane. |
 | Parser absence and recovery | `parser_absence.lua` proves safe degradation, one warning, and same-buffer recovery in all five filetypes. | PASS on every required lane. |
@@ -97,7 +97,7 @@ Exit with `:qa!`. This command uses the parser built in this repository and the 
 ## Public contract decisions
 
 - Supported filetypes are fixed to `html`, `htmldjango`, `jinja`, `twig`, and `liquid`.
-- Only `htmldjango -> html` is globally registered. The other template filetypes use an explicit secondary HTML parser without changing language identity.
+- Django, Jinja, Twig, and Liquid use an explicit secondary HTML parser without changing their Tree-sitter language identities.
 - The only setup option is `custom_attributes`, containing plugin names without `data-`.
 - Names use lowercase kebab-case, duplicates and built-in collisions are deduplicated, matching is deterministic and longest-name-safe, and caller input is copied.
 - `setup()` and `setup(nil)` preserve/reapply current configuration. `setup(opts)` replaces the explicit configuration from defaults, so `setup({})` clears custom names.

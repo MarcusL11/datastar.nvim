@@ -104,10 +104,10 @@ The fixed default matrix is: >
   liquid
 <
 
-Only `htmldjango` is globally registered to the HTML Tree-sitter language.
-Jinja, Twig, and Liquid retain their own language identities while the plugin
-requests an explicit secondary HTML parser for structural attribute bounds.
-The plugin never starts or stops a visible host highlighter.
+Django, Jinja, Twig, and Liquid retain their own Tree-sitter language
+identities while the plugin requests an explicit secondary HTML parser for
+structural attribute bounds.  The plugin never starts or stops a visible host
+highlighter.
 
 Stock Neovim 0.10 does not detect the `.jinja` extension.  Datastar.nvim
 supports buffers whose filetype is already `jinja`; it does not install or
@@ -259,8 +259,9 @@ detection.
 Template colors look different from HTML~
 
 That is expected.  Host syntax and highlighters remain visible by design.
-Datastar.nvim does not replace Jinja, Twig, or Liquid language identities and
-does not start visible HTML Tree-sitter highlighting for those buffers.
+Datastar.nvim does not replace Django, Jinja, Twig, or Liquid language
+identities and does not start visible HTML Tree-sitter highlighting for those
+buffers.
 
 Help is not found~
 

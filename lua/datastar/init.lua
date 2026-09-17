@@ -162,7 +162,6 @@ end
 function M.setup(opts)
   local next_config = opts == nil and config.current() or config.normalize(opts)
 
-  vim.treesitter.language.register("html", "htmldjango")
   attributes.configure(next_config.custom_attributes)
   config.apply(next_config)
   renderer.set_warning_handler(warn_once)

@@ -1,7 +1,7 @@
 local h = dofile(vim.env.DATASTAR_ROOT .. "/tests/helpers.lua")
 
 local supported = { "html", "htmldjango", "jinja", "twig", "liquid" }
-local secondary = { "jinja", "twig", "liquid" }
+local host_filetypes = { "htmldjango", "jinja", "twig", "liquid" }
 
 local function overlaps(mark, row, start_col, end_col)
   if mark.row ~= row or mark.end_row ~= row then
@@ -18,7 +18,7 @@ end
 
 return function()
   local identities = {}
-  for _, filetype in ipairs(secondary) do
+  for _, filetype in ipairs(host_filetypes) do
     identities[filetype] = vim.treesitter.language.get_lang(filetype)
   end
 
@@ -39,8 +39,7 @@ return function()
   end)
   h.assert_equal(0, starts, "setup never starts a host Tree-sitter highlighter")
   h.assert_equal(0, stops, "setup never stops a host Tree-sitter highlighter")
-  h.assert_equal("html", vim.treesitter.language.get_lang("htmldjango"), "only Django is globally registered to HTML")
-  for _, filetype in ipairs(secondary) do
+  for _, filetype in ipairs(host_filetypes) do
     h.assert_equal(identities[filetype], vim.treesitter.language.get_lang(filetype), filetype .. " language identity is unchanged")
   end
 
