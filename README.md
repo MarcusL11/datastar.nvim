@@ -4,6 +4,10 @@ Syntax highlighting for [Datastar](https://data-star.dev/) attributes in Neovim.
 
 The syntax highlighter supports `html`, `htmldjango`, `jinja`, `twig`, and `liquid`. It recognizes the pinned built-in Datastar attribute inventory plus explicitly configured custom plugin names, highlights attribute names and selected tokens in eligible quoted values, and leaves ordinary HTML and template presentation to the host runtime.
 
+## Unofficial project
+
+`datastar.nvim` is an independent, unofficial community plugin. It is not affiliated with, endorsed by, sponsored by, or maintained by the Datastar project or Star Federation. The Datastar name is used solely to describe compatibility with Datastar attributes and expressions.
+
 ## Requirements
 
 - Neovim 0.10 or newer.
@@ -141,6 +145,12 @@ The dedicated help case generates help tags in a temporary copy and checks that 
 
 - [Datastar](https://data-star.dev/)
 - [Datastar VS Code extension](https://github.com/starfederation/datastar-vscode-extension)
+
+## AI-assisted development
+
+Large language models (LLMs) were used to help generate portions of this
+project's code and documentation. All LLM-assisted content was reviewed and
+approved by the author, who remains responsible for the final work.
 
 ## License
 
