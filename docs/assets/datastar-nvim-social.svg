@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">datastar.nvim social preview</title>
+  <desc id="description">A dark promotional graphic showing a highlighted Datastar button expression and selected syntax roles.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1118"/>
+      <stop offset="1" stop-color="#132a22"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="45%" r="48%">
+      <stop offset="0" stop-color="#405fbe" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#405fbe" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+  <path d="M0 558h1280M0 598h1280" stroke="#85d390" stroke-opacity=".06"/>
+  <path d="M1040 0v640M1120 0v640M1200 0v640" stroke="#85a8ff" stroke-opacity=".045"/>
+
+  <text x="82" y="140" fill="#85a8ff" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="88" font-weight="760" letter-spacing="-4">datastar</text>
+  <text x="395" y="140" fill="#85d390" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="83" font-weight="700" letter-spacing="-5">.nvim</text>
+  <text x="86" y="187" fill="#b9c4d0" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="24" font-weight="600" letter-spacing="2.8">DATASTAR SYNTAX HIGHLIGHTING FOR NEOVIM</text>
+
+  <rect x="78" y="257" width="735" height="274" rx="26" fill="#000" opacity=".28"/>
+  <g>
+    <rect x="78" y="241" width="735" height="274" rx="26" fill="#111a24" stroke="#314252" stroke-width="2"/>
+    <rect x="78" y="241" width="735" height="48" rx="26" fill="#182531"/>
+    <path d="M78 269h735" stroke="#314252" stroke-width="2"/>
+    <circle cx="111" cy="265" r="7" fill="#ff6257"/>
+    <circle cx="136" cy="265" r="7" fill="#ffc857"/>
+    <circle cx="161" cy="265" r="7" fill="#55d6be"/>
+
+    <text x="117" y="350" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="31" font-weight="600">
+      <tspan fill="#778899">&lt;</tspan><tspan fill="#85a8ff">button</tspan>
+    </text>
+    <text x="157" y="398" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="31" font-weight="600">
+      <tspan fill="#b9c4d0">data-</tspan><tspan fill="#85a8ff">on</tspan><tspan fill="#55d6be">:click</tspan><tspan fill="#778899">=</tspan><tspan fill="#ff9d98">&quot;</tspan><tspan fill="#ffc857">@launch</tspan><tspan fill="#b9c4d0">(</tspan><tspan fill="#85d390">$ready</tspan><tspan fill="#b9c4d0">)</tspan><tspan fill="#ff9d98">&quot;</tspan><tspan fill="#778899">&gt;</tspan>
+    </text>
+    <text x="157" y="446" fill="#e8edf2" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="31">Launch</text>
+    <text x="117" y="484" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="31" font-weight="600"><tspan fill="#778899">&lt;/</tspan><tspan fill="#85a8ff">button</tspan><tspan fill="#778899">&gt;</tspan></text>
+  </g>
+
+  <rect x="845" y="257" width="357" height="274" rx="26" fill="#000" opacity=".22"/>
+  <g>
+    <rect x="845" y="241" width="357" height="274" rx="26" fill="#111a24" stroke="#314252" stroke-width="2"/>
+    <text x="881" y="292" fill="#81909e" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="18" font-weight="700" letter-spacing="2.2">SYNTAX ROLES</text>
+    <path d="M881 313h285" stroke="#314252" stroke-width="2"/>
+    <text x="881" y="362" fill="#85d390" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="31" font-weight="700">$signal</text>
+    <text x="881" y="416" fill="#ffc857" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="31" font-weight="700">@action()</text>
+    <text x="881" y="470" fill="#55d6be" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="27" font-weight="700">:key__modifier</text>
+  </g>
+
+  <text x="86" y="586" fill="#81909e" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace" font-size="21">HTML · Django · Jinja · Twig · Liquid</text>
+</svg>

@@ -1,3 +1,17 @@
+<p align="center">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="./docs/assets/datastar-nvim-logo-dark.svg"
+    >
+    <img
+      src="./docs/assets/datastar-nvim-logo.svg"
+      alt="datastar.nvim — syntax highlighting for Neovim"
+      width="720"
+    >
+  </picture>
+</p>
+
 # datastar.nvim
 
 Syntax highlighting for [Datastar](https://data-star.dev/) attributes in Neovim.
@@ -9,6 +23,12 @@ See the [changelog](CHANGELOG.md) for release history.
 ## Unofficial project
 
 `datastar.nvim` is an independent, unofficial community plugin. It is not affiliated with, endorsed by, sponsored by, or maintained by the Datastar project or Star Federation. The Datastar name is used solely to describe compatibility with Datastar attributes and expressions.
+
+## AI-assisted development
+
+Large language models (LLMs) were used to help generate portions of this
+project's code and documentation. All LLM-assisted content was reviewed and
+approved by the author, who remains responsible for the final work.
 
 ## Requirements
 
@@ -151,12 +171,6 @@ The dedicated help case generates help tags in a temporary copy and checks that 
 
 - [Datastar](https://data-star.dev/)
 - [Datastar VS Code extension](https://github.com/starfederation/datastar-vscode-extension)
-
-## AI-assisted development
-
-Large language models (LLMs) were used to help generate portions of this
-project's code and documentation. All LLM-assisted content was reviewed and
-approved by the author, who remains responsible for the final work.
 
 ## License
 

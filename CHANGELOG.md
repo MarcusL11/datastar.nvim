@@ -2,6 +2,11 @@
 
 Notable user-facing changes to `datastar.nvim` are recorded here.
 
+## Unreleased
+
+- Add original light/dark wordmarks and social-preview artwork.
+- Remove phase completion notes from the shipped documentation.
+
 ## v0.2.0
 
 ### Added
