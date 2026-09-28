@@ -4,13 +4,13 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 NVIM_BIN=${NVIM_BIN:-nvim}
 
-if [ ! -f "$ROOT/.deps/parser/html.so" ]; then
+if [ ! -f "$ROOT/.deps/parser/html.so" ] || [ ! -f "$ROOT/.deps/parser/javascript.so" ]; then
   echo "missing test parser; run ./tests/build_parsers.sh first" >&2
   exit 1
 fi
 python3 "$ROOT/tests/generate_viability.py" >/dev/null
 
-DEFAULT_CASES='tests/cases/architecture.lua tests/cases/htmldjango.lua tests/cases/filetypes.lua tests/cases/custom_attributes.lua tests/cases/malformed.lua tests/cases/syntax_contract.lua tests/cases/highlights.lua tests/cases/public_entry.lua tests/cases/zero_config.lua tests/cases/lifecycle.lua tests/cases/parser_absence.lua tests/cases/failure_ux.lua tests/cases/help.lua tests/cases/viability.lua'
+DEFAULT_CASES='tests/cases/architecture.lua tests/cases/htmldjango.lua tests/cases/filetypes.lua tests/cases/javascript_templates.lua tests/cases/javascript_parser_absence.lua tests/cases/custom_attributes.lua tests/cases/malformed.lua tests/cases/syntax_contract.lua tests/cases/highlights.lua tests/cases/public_entry.lua tests/cases/zero_config.lua tests/cases/lifecycle.lua tests/cases/parser_absence.lua tests/cases/failure_ux.lua tests/cases/help.lua tests/cases/viability.lua'
 
 if [ "${1:-}" = "--self-test-failure" ]; then
   CASES='tests/cases/self_failure.lua'
@@ -28,7 +28,7 @@ run_case() {
   case_path=$1
   xdg=$(mktemp -d "${TMPDIR:-/tmp}/datastar-nvim-test.XXXXXX")
   no_parser=0
-  if [ "$case_path" = "tests/cases/parser_absence.lua" ]; then
+  if [ "$case_path" = "tests/cases/parser_absence.lua" ] || [ "$case_path" = "tests/cases/javascript_parser_absence.lua" ]; then
     no_parser=1
   fi
 

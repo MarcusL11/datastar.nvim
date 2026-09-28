@@ -16,10 +16,13 @@ local supported_filetypes = {
   jinja = true,
   twig = true,
   liquid = true,
+  javascript = true,
 }
 
 local notice_messages = {
   missing_parser = "datastar.nvim: the HTML Tree-sitter parser is required for Datastar highlighting; install it with :TSInstall html (or your parser manager) and reload the buffer; host syntax was left unchanged",
+  missing_javascript_parser = "datastar.nvim: the JavaScript Tree-sitter parser is required for JavaScript html tagged-template highlighting; install it with :TSInstall javascript (or your parser manager) and reload the buffer; host syntax was left unchanged",
+  javascript_parse_failed = "datastar.nvim: the JavaScript Tree-sitter parser could not parse this buffer; reload after checking the parser installation; host syntax was left unchanged",
   query_failed = "datastar.nvim: the HTML Tree-sitter query could not be created; update the HTML parser and datastar.nvim, then reload the buffer; host syntax was left unchanged",
   parse_failed = "datastar.nvim: the HTML Tree-sitter parser could not parse this buffer; reload the buffer after checking the parser installation; host syntax was left unchanged",
   refresh_failed = "datastar.nvim: Datastar highlighting failed unexpectedly; reload the buffer, update datastar.nvim, and report the failure if it persists; host syntax was left unchanged",

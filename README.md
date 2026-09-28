@@ -2,7 +2,9 @@
 
 Syntax highlighting for [Datastar](https://data-star.dev/) attributes in Neovim.
 
-The syntax highlighter supports `html`, `htmldjango`, `jinja`, `twig`, and `liquid`. It recognizes the pinned built-in Datastar attribute inventory plus explicitly configured custom plugin names, highlights attribute names and selected tokens in eligible quoted values, and leaves ordinary HTML and template presentation to the host runtime.
+The syntax highlighter supports `html`, `htmldjango`, `jinja`, `twig`, `liquid`, and `javascript` (`html` tagged templates only). It recognizes the pinned built-in Datastar attribute inventory plus explicitly configured custom plugin names, highlights attribute names and selected tokens in eligible quoted values, and leaves ordinary HTML and template presentation to the host runtime.
+
+See the [changelog](CHANGELOG.md) for release history.
 
 ## Unofficial project
 
@@ -12,8 +14,9 @@ The syntax highlighter supports `html`, `htmldjango`, `jinja`, `twig`, and `liqu
 
 - Neovim 0.10 or newer.
 - An externally installed HTML Tree-sitter parser that Neovim can discover.
+- For `javascript` buffers, an externally installed JavaScript Tree-sitter parser.
 
-The parser is not bundled. If you use `nvim-treesitter`, install its `html` parser using that plugin's normal installation flow (for example, `:TSInstall html`). A `parser/html.*` file on Neovim's runtime path is the usual installation shape, but any HTML parser that Neovim can discover and use satisfies the requirement. The plugin does not fall back to a Vim syntax implementation.
+The parsers are not bundled. If you use `nvim-treesitter`, install `html` (and `javascript` for JavaScript buffers) using its normal installation flow (for example, `:TSInstall html javascript`). Parser files on Neovim's runtime path are the usual installation shape, but any parsers Neovim can discover and use satisfy the requirement. The plugin does not fall back to a Vim syntax implementation.
 
 ## Installation
 
@@ -38,7 +41,7 @@ Load it for the supported filetypes:
 ```lua
 {
   "MarcusL11/datastar.nvim",
-  ft = { "html", "htmldjango", "jinja", "twig", "liquid" },
+  ft = { "html", "htmldjango", "jinja", "twig", "liquid", "javascript" },
 }
 ```
 
@@ -47,7 +50,7 @@ Lazy managers may also call setup explicitly. This is safe: `setup()` is idempot
 ```lua
 {
   "MarcusL11/datastar.nvim",
-  ft = { "html", "htmldjango", "jinja", "twig", "liquid" },
+  ft = { "html", "htmldjango", "jinja", "twig", "liquid", "javascript" },
   opts = {
     custom_attributes = {
       "my-plugin",
@@ -65,7 +68,7 @@ There is intentionally no generic filetype option. See `:help datastar.nvim` aft
 
 ## Supported syntax
 
-On all five supported filetypes, the highlighter recognizes these lowercase built-in Datastar attribute names:
+In supported HTML buffers and `html` tagged templates in JavaScript, the highlighter recognizes these lowercase built-in Datastar attribute names:
 
 ```text
 animate                 attr                  bind
@@ -95,6 +98,8 @@ Within an eligible quoted value, the supported highlighting contract is delibera
 
 These are highlighting boundaries, not JavaScript parsing or expression validation. Complete `{% ... %}` and `{{ ... }}` template fragments inside a value are host-owned holes in `htmldjango`, Jinja, Twig, and Liquid: no Datastar mark overlaps them, and surrounding string state resumes after the hole. Whitespace-control forms use the same boundaries. An unclosed `{%` or `{{` stops Datastar tokenization through the end of that attribute value (fail closed).
 
+In `javascript` buffers, only direct `html` tagged template literals are parsed as HTML. Ordinary strings, untagged templates, other tags, and comments are ignored. `${...}` is JavaScript-owned: a complete Datastar name outside the substitution may still be marked, but an attribute value intersecting any substitution gets no Datastar value marks. Independent attributes after a substitution resume normally. JavaScript highlighting and filetype remain unchanged.
+
 ## Highlight customization
 
 The plugin defines default links only; it does not set colors. Override any group after your colorscheme, for example:
@@ -109,14 +114,15 @@ Available groups are `DatastarAttributePrefix`, `DatastarPlugin`, `DatastarKeySe
 ## Troubleshooting
 
 - **No Datastar highlighting:** confirm `:echo has('nvim-0.10')` is `1`, then install and make the HTML parser discoverable by Neovim. A missing parser emits this warning at most once per session: `datastar.nvim: the HTML Tree-sitter parser is required for Datastar highlighting; install it with :TSInstall html (or your parser manager) and reload the buffer; host syntax was left unchanged`. Query, parse, and unexpected refresh failures also warn at most once per failure category; check `:messages` and keep host syntax in place.
-- **An attribute value is not highlighted:** check that the buffer filetype is exactly `html`, `htmldjango`, `jinja`, `twig`, or `liquid`; the full attribute name and suffixes are complete and lowercase; and the value is quoted. Custom plugin names must also be configured. Other `data-*` values are intentionally ignored.
+- **An attribute value is not highlighted:** check that the buffer filetype is exactly `html`, `htmldjango`, `jinja`, `twig`, `liquid`, or `javascript` (with a direct `html` tagged template); the full attribute name and suffixes are complete and lowercase; and the value is quoted. Custom plugin names must also be configured. Other `data-*` values are intentionally ignored.
 - **A `.jinja` file is not activated on Neovim 0.10:** stock Neovim 0.10 does not detect that extension. Set `filetype=jinja` through your environment; this plugin supports the filetype but does not install filename-detection rules.
+- **No highlighting in a JavaScript template:** install both `javascript` and `html` Tree-sitter parsers (for example, `:TSInstall javascript html`). A missing JavaScript parser emits its own deduplicated, actionable warning; `${...}` inside a Datastar value suppresses that value's Datastar marks.
 - **Template colors look different than HTML:** the plugin uses HTML Tree-sitter only as a structural parser. Django, Jinja, Twig, and Liquid retain their own Tree-sitter language identities. It never starts or stops a visible host highlighter.
 - **`:help datastar.nvim` is not found:** create help tags for the installed plugin's `doc` directory with `:helptags {path-to-datastar.nvim}/doc`.
 
 ## Compatibility and validation
 
-Neovim 0.10+ is the public baseline. CI is configured to build the pinned external HTML parser and run the suite on Ubuntu with Neovim `v0.10.4`, `v0.11.7`, and `v0.12.5`; its nightly job is non-blocking. A separate macOS job only smoke-tests the Darwin parser-build path, not the plugin suite. No Windows compatibility claim is made.
+Neovim 0.10+ is the public baseline. CI is configured to build the pinned external HTML and JavaScript parsers and run the suite on Ubuntu with Neovim `v0.10.4`, `v0.11.7`, and `v0.12.5`; its nightly job is non-blocking. A separate macOS job only smoke-tests the Darwin parser-build path, not the plugin suite. No Windows compatibility claim is made.
 
 Run the repository validation contract locally:
 
@@ -130,15 +136,15 @@ git diff --check
 git status --short
 ```
 
-The dedicated help case generates help tags in a temporary copy and checks that `:help datastar.nvim` resolves; it does not add `doc/tags` to the repository. The released-line matrix requires Docker. `tests/build_parsers.sh` builds a local parser into ignored `.deps/`; it does not add a parser binary to the repository. See [`docs/phase-3.md`](docs/phase-3.md) for the current completion evidence, [`docs/phase-2.md`](docs/phase-2.md) for the production-MVP baseline, and [`UPSTREAM.md`](UPSTREAM.md) for pinned source provenance and attribution.
+The dedicated help case generates help tags in a temporary copy and checks that `:help datastar.nvim` resolves; it does not add `doc/tags` to the repository. The released-line matrix requires Docker. `tests/build_parsers.sh` builds local parsers into ignored `.deps/`; it does not add a parser binary to the repository. See [`tests/cases/javascript_templates.lua`](tests/cases/javascript_templates.lua) for JavaScript acceptance tests and [`UPSTREAM.md`](UPSTREAM.md) for pinned source provenance and attribution.
 
 ## Limitations and non-goals
 
-- Only `html`, `htmldjango`, `jinja`, `twig`, and `liquid` are supported. Vue, Svelte, Astro, Templ, and template languages with other hole forms remain unproven.
+- Only `html`, `htmldjango`, `jinja`, `twig`, `liquid`, and direct `html` tagged templates in `javascript` are supported.
 - Only the listed pinned built-ins and configured lowercase custom plugin names are recognized. Custom metadata, completion, modifier validation, and diagnostics are not provided. Expression highlighting is limited to quoted HTML values.
-- Template handling is limited to complete `{% ... %}` and `{{ ... }}` holes inside a recognized value. Comments, alternate delimiters, and broader template lexical support are not provided.
-- Arrow-function semantics, spread semantics, and template-literal interpolation are not highlighted.
-- There is no JavaScript parser injection, Datastar Vim-syntax backend, incremental/decorative rendering backend, LSP, completion, diagnostics, hover, navigation, rename, or signature help.
+- Server-template handling is limited to complete `{% ... %}` and `{{ ... }}` holes inside a recognized value. JavaScript `${...}` uses the separate fail-closed rule above. Comments, alternate delimiters, and broader template lexical support are not provided.
+- Arrow-function semantics, spread semantics, and interpolation within Datastar expressions are not highlighted.
+- JavaScript support uses bounded parsing of `html` tagged templates, not host parser injections. There is no Datastar Vim-syntax backend, incremental/decorative rendering backend, LSP, completion, diagnostics, hover, navigation, rename, or signature help.
 - Parser binaries are not bundled, and upstream attribute synchronization is not automatic.
 
 ## Upstream references

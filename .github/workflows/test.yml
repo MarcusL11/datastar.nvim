@@ -23,11 +23,11 @@ jobs:
         run: |
           ./tests/install_neovim.sh "${{ matrix.neovim }}" "$RUNNER_TEMP/nvim"
           echo "$RUNNER_TEMP/nvim/bin" >> "$GITHUB_PATH"
-      - name: Build pinned HTML parser
+      - name: Build pinned HTML and JavaScript parsers
         run: ./tests/build_parsers.sh
       - name: Prove harness failure propagation
         run: ./tests/run.sh --self-test-failure
-      - name: Run syntax MVP suite
+      - name: Run syntax suite
         run: ./tests/run.sh
 
   macos-parser-build-smoke:
@@ -35,10 +35,10 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Build pinned HTML parser
+      - name: Build pinned HTML and JavaScript parsers
         run: ./tests/build_parsers.sh
-      - name: Verify parser artifact
-        run: test -f .deps/parser/html.so
+      - name: Verify parser artifacts
+        run: test -f .deps/parser/html.so && test -f .deps/parser/javascript.so
 
   nightly:
     name: Neovim nightly (non-blocking)
@@ -52,7 +52,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/nvim"
           tar -xzf "$RUNNER_TEMP/nvim.tar.gz" -C "$RUNNER_TEMP/nvim" --strip-components=1
           echo "$RUNNER_TEMP/nvim/bin" >> "$GITHUB_PATH"
-      - name: Build pinned HTML parser
+      - name: Build pinned HTML and JavaScript parsers
         run: ./tests/build_parsers.sh
-      - name: Run syntax MVP suite
+      - name: Run syntax suite
         run: ./tests/run.sh

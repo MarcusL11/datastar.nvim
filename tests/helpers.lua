@@ -126,8 +126,8 @@ function M.direct_syntax_group(row, column)
   return vim.fn.synIDattr(id, "name")
 end
 
-function M.runtime_parser_paths()
-  local paths = vim.api.nvim_get_runtime_file("parser/html.*", true)
+function M.runtime_parser_paths(language)
+  local paths = vim.api.nvim_get_runtime_file("parser/" .. (language or "html") .. ".*", true)
   table.sort(paths)
   return paths
 end
